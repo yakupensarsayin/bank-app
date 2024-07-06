@@ -1,11 +1,17 @@
+using backend.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Get the database connection string from user-secrets.
+builder.Services.AddDbContext<BankDbContext>(options => options.UseNpgsql("Name=ConnectionStrings:bank_db"));
 
 var app = builder.Build();
 
