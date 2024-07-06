@@ -10,6 +10,8 @@ dotnet user-secrets init
 dotnet user-secrets set ConnectionStrings:bank_db "{connection string should come here}"
 ```
 
+* Put Connection String without curly braces: ``{`` and ``}``
+
 To give an example of Connection String for PostgreSQL:
 ```
 Host=localhost; Database=db_name; Username=postgres; Password=123
