@@ -13,6 +13,19 @@ builder.Services.AddSwaggerGen();
 // Get the database connection string from user-secrets.
 builder.Services.AddDbContext<BankDbContext>(options => options.UseNpgsql("Name=ConnectionStrings:bank_db"));
 
+String allowLocalOrigin = "_allowLocalOrigin";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowLocalOrigin,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,5 +40,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(allowLocalOrigin);
 
 app.Run();

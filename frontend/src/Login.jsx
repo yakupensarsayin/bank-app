@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('NessesaryLink', {
+      const response = await fetch('https://localhost:7130/api/Auth/Login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          username,
+          email,
           password
         })
       });
@@ -32,9 +32,9 @@ function Login() {
       <div className="log-box">
         <span>User Name: </span>
         <input
-          className="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          className="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <br />
         <span>Password: </span>
