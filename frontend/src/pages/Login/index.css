@@ -13,6 +13,10 @@ body, html {
   height: 100vh;
 }
 
+p.error{
+  color: red;
+}
+
 .log-box {
   display: flex;
   flex-direction: column;
@@ -23,7 +27,7 @@ body, html {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-span {
+label {
   color: #6C757D;
 }
 
@@ -35,7 +39,7 @@ input {
   border-radius: 5px;
 }
 
-button {
+input#submit {
   padding: 10px 20px;
   background-color: #356a4b;
   color: white;
@@ -44,7 +48,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+input#submit:hover {
   background-color: #20432d;
 }
 
