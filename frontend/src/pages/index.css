@@ -63,3 +63,18 @@ input#submit:hover {
       width: 400px;
   }
 }
+
+.register-link, .login-link{
+  margin-left: 85%;
+  background-color: hsl(0, 0%, 100%);
+  color: #6C757D;
+  border: 1px solid #A8D5BA;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.register-link:hover, .login-link:hover{
+  background-color: hsl(0, 0%, 90%);
+  cursor: pointer;
+  text-decoration: underline;
+}
