@@ -30,7 +30,7 @@ function Login() {
   return (
     <div className="log-container">
       <div className="log-box">
-        <span>User Name: </span>
+        <span>Email: </span>
         <input
           className="email"
           value={email}
