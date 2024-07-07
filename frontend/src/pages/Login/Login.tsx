@@ -1,6 +1,5 @@
-import React from "react"
 import {SubmitHandler, useForm} from 'react-hook-form'
-import './index.css'
+import '../index.css'
 
 
 type LoginFormValues = {
