@@ -1,16 +1,18 @@
 ## Project Details
 * This project uses ``PostgreSQL`` for it's backend
 
-* It uses "named connection strings" to connect to the database.
+* There are some secure environment variables used in the project.
 
-To configure it, open Package Manager Console (from View -> Other Windows -> Package Manager Console) and type:
+To configure them, open Package Manager Console (from View -> Other Windows -> Package Manager Console) and type:
 
+:exclamation: All data is inserted without curly braces: ``{`` and ``}``
 ```
 dotnet user-secrets init
+dotnet user-secrets set Jwt:Key "{64 char random key}"
+dotnet user-secrets set Jwt:Issuer "{IP and port where the server is running}"
+dotnet user-secrets set Jwt:Audience "{target audience address that will consume this API}"
 dotnet user-secrets set ConnectionStrings:bank_db "{connection string should come here}"
 ```
-
-* Put Connection String without curly braces: ``{`` and ``}``
 
 To give an example of Connection String for PostgreSQL:
 ```
