@@ -19,4 +19,7 @@ To give an example of Connection String for PostgreSQL:
 Host=localhost; Database=db_name; Username=postgres; Password=123
 ```
 
-* The SQL commands required to create the database can be accessed from the [database-scripts folder](../database-scripts).
+* To generate the database, in Package Manager Console, type:
+```
+dotnet ef database update
+```

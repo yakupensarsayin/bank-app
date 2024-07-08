@@ -13,6 +13,8 @@ using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using backend.Authentication;
+using System.Security.Cryptography;
+using NuGet.Common;
 
 namespace backend.Controllers
 {
@@ -36,60 +38,127 @@ namespace backend.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto dto)
         {
             
-            if (await UserExists(userRegisterDto.Email))
+            if (await UserExists(dto.Email))
             {
                 return BadRequest("Email in use!");
             }
 
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(userRegisterDto.Password);
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            User user = userMapper.UserRegisterDtoToUserWithPasswordHash(userRegisterDto, passwordHash);
+            User user = userMapper.UserRegisterDtoToUserWithPasswordHash(dto, passwordHash);
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
+            // TODO: Add role to newly registered user.
+             
             return Ok();
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(UserLoginDto userLoginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
-            string? userPassword = await _context.Users
-                .Where(u => u.Email == userLoginDto.Email)
-                .Select(u => u.Password)
+            User? user = await _context.Users
+                .Where(u => u.Email == dto.Email)
+                .Include(u => u.Roles)
                 .FirstOrDefaultAsync();
 
-            if (userPassword == null || !BCrypt.Net.BCrypt.Verify(userLoginDto.Password, userPassword))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
             {
                 return BadRequest("Email or password is incorrect.");
             }
-                
-            // Making room for expansion for Expiration & Refresh Token in future.
 
-            JwtSecurityToken token = CreateJwtToken(userLoginDto);
+            JwtSecurityToken token = CreateJwtToken(user);
 
-            var response = new LoginResponse
+            string refreshToken = GenerateRefreshToken();
+            int expiresIn = 3600; // 1 hour, hardcoded
+
+            var response = new TokenResponse
             {
                 TokenType = "Bearer",
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken,
+                ExpiresIn = expiresIn
             };
+
+            await SaveRefreshTokenToDatabase(user, refreshToken, expiresIn);
 
             return Ok(response);
         }
 
-        private JwtSecurityToken CreateJwtToken(UserLoginDto loginDto)
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshModel model)
+        {
+            TokenValidationResult result = await ValidateExpiredToken(model.AccessToken);
+
+            if (!result.IsValid)
+                return Unauthorized();
+
+            string email = result.ClaimsIdentity.FindFirst(ClaimTypes.Email)!.Value;
+
+            User? user = await _context.Users
+                .Where(u => u.Email == email)
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync();
+
+            if (user == null || user.RefreshToken != model.RefreshToken || user.TokenExpiry < DateTime.UtcNow)
+            {
+                return Unauthorized();
+            }
+
+            string refreshToken = GenerateRefreshToken();
+            int expiresIn = 3600; // 1 hour, hardcoded
+            JwtSecurityToken token = CreateJwtToken(user);
+
+            var response = new TokenResponse
+            {
+                TokenType = "Bearer",
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken,
+                ExpiresIn = expiresIn
+            };
+
+            await SaveRefreshTokenToDatabase(user, refreshToken, expiresIn);
+
+            return Ok(response);
+        }
+
+        private async Task SaveRefreshTokenToDatabase(User user, string refreshToken, int expiresInSeconds)
+        {
+            user.RefreshToken = refreshToken;
+            user.TokenExpiry = DateTime.UtcNow.AddSeconds(expiresInSeconds);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task<TokenValidationResult> ValidateExpiredToken(string token)
+        {
+            var validation = new TokenValidationParameters
+            {
+                ValidIssuer = _jwtIssuer,
+                ValidAudience = _jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey)),
+                ValidateLifetime = false
+            };
+
+            return await new JwtSecurityTokenHandler().ValidateTokenAsync(token, validation);
+        }
+
+        private JwtSecurityToken CreateJwtToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            // TODO: Add user types.
+            // I left it this way since we are progressing on a single role basis for now.
+            // It can be easily changed in the future as it is in the form of a list
             var claims = new[]
-{
-                new Claim(ClaimTypes.Email, loginDto.Email),
-                new Claim(ClaimTypes.Role, "Customer")
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Roles.FirstOrDefault()!.Name)
             };
 
             // TODO: When frontend is ready, decrease time.
@@ -101,6 +170,16 @@ namespace backend.Controllers
 
             return token;
         }
+
+        private static string GenerateRefreshToken()
+        {
+            byte[] random = new byte[64];
+
+            RandomNumberGenerator.Create().GetBytes(random);
+
+            return Convert.ToBase64String(random);
+        }
+
         private async Task<bool> UserExists(String email)
         {
             User? user = await _context.Users

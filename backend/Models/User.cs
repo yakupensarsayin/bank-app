@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace backend.Models;
 
 public partial class User
 {
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
@@ -25,4 +27,10 @@ public partial class User
     [Required]
     [StringLength(72)]
     public string Password { get; set; } = null!;
+
+    public string? RefreshToken { get; set; }
+
+    public DateTime TokenExpiry {  get; set; }
+
+    public ICollection<Role> Roles { get; set; }
 }
