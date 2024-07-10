@@ -5,6 +5,7 @@ using backend.Services.Abstract;
 using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace backend.Services.Concrete
 {
@@ -45,9 +46,9 @@ namespace backend.Services.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task RegisterUserToDatabase(UserRegisterDto dto, string passwordHash, Role customerRole)
+        public async Task RegisterUserToDatabase(UserRegisterDto dto, string passwordHash, Role customerRole, string emailToken)
         {
-            User user = userMapper.MapUserFromUserRegisterDto(dto, passwordHash);
+            User user = userMapper.MapUserFromUserRegisterDto(dto, passwordHash, emailToken);
 
             user.Roles = new List<Role>(){customerRole};
 
@@ -76,6 +77,27 @@ namespace backend.Services.Concrete
 #pragma warning disable CS8603
             return user;
 #pragma warning restore CS8603
+        }
+
+        public async Task<User> GetUserByEmailVerificationToken(string emailVerificationToken)
+        {
+            User? user = await _context.Users
+            .Where(u => u.EmailVerificationToken == emailVerificationToken)
+            .FirstOrDefaultAsync();
+
+            // We are making checks on the returned result
+#pragma warning disable CS8603
+            return user;
+#pragma warning restore CS8603
+        }
+
+        public async Task ConfirmUserEmail(User user)
+        {
+            user.IsEmailConfirmed = true;
+            user.EmailVerificationToken = null;
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
         }
     }
 }

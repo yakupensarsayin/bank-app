@@ -10,6 +10,8 @@ namespace backend.Services.Abstract
         public Task<User> GetUser(string email);
         public Task<User> GetUserWithRoles(string email);
         public Task SaveRefreshTokenToDatabase(User user, string refreshToken, int refreshTokenExpiryInMinutes);
-        public Task RegisterUserToDatabase(UserRegisterDto dto, string passwordHash, Role customerRole);
+        public Task RegisterUserToDatabase(UserRegisterDto dto, string passwordHash, Role customerRole, string emailToken);
+        public Task ConfirmUserEmail(User user);
+        public Task<User> GetUserByEmailVerificationToken(string emailVerificationToken);
     }
 }

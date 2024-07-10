@@ -16,5 +16,7 @@ namespace backend.Services.Abstract
         public void SetTokensInsideCookie(TokenResponse response, HttpContext context);
         public Task<TokenValidationResult> ValidateExpiredToken(string jwtToken);
         public bool VerifyPasswordHash(string password, string hash);
+
+        public string GenerateEmailVerificationToken();
     }
 }

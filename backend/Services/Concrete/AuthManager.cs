@@ -169,5 +169,14 @@ namespace backend.Services.Concrete
         {
             return context.User.Claims.Single(c => c.Type == ClaimTypes.Email).Value;
         }
+
+        public string GenerateEmailVerificationToken()
+        {
+            byte[] random = new byte[16];
+
+            RandomNumberGenerator.Create().GetBytes(random);
+
+            return Convert.ToHexString(random);
+        }
     }
 }

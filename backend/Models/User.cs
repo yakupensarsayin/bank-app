@@ -32,5 +32,9 @@ public partial class User
 
     public DateTime TokenExpiry {  get; set; }
 
+    [StringLength(32)]
+    public string? EmailVerificationToken { get; set; }
+    public bool IsEmailConfirmed { get; set; } = false;
+
     public List<Role> Roles { get; set; }
 }

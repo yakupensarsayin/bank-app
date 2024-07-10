@@ -6,6 +6,7 @@ using backend.Authentication;
 using backend.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using backend.Services.Concrete;
+using System.Security.Cryptography;
 
 namespace backend.Controllers
 {
@@ -16,12 +17,14 @@ namespace backend.Controllers
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
+        private readonly IEmailerService _emailerService;
 
-        public AuthController(IAuthService authService, IUserService userService, IRoleService roleService)
+        public AuthController(IAuthService authService, IUserService userService, IRoleService roleService, IEmailerService emailerService)
         {
             _authService = authService;
             _userService = userService;
             _roleService = roleService;
+            _emailerService = emailerService;
         }
 
         [HttpPost("Register")]
@@ -34,7 +37,9 @@ namespace backend.Controllers
 
             Role customerRole = await _roleService.GetRole(r => r.Name == "Customer");
 
-            await _userService.RegisterUserToDatabase(dto, passwordHash, customerRole);
+            string emailToken = _authService.GenerateEmailVerificationToken();
+            await _userService.RegisterUserToDatabase(dto, passwordHash, customerRole, emailToken);
+            await _emailerService.SendEmailVerificationToken(dto.Email, emailToken);
 
             return Ok();
         }
@@ -46,6 +51,9 @@ namespace backend.Controllers
 
             if (user == null || !_authService.VerifyPasswordHash(dto.Password, user.Password))
                 return BadRequest();
+
+            if(!user.IsEmailConfirmed)
+                return BadRequest("Email is not confirmed!");
 
             var response = _authService.CreateTokenResponse(user);
             int expiration = _authService.GetRefreshTokenExpirationMinutes();
@@ -86,9 +94,22 @@ namespace backend.Controllers
             return Ok();
         }
 
+        [HttpGet("Verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token)
+        {
+            User? user = await _userService.GetUserByEmailVerificationToken(token);
+
+            if (user == null)
+                return BadRequest();
+
+            await _userService.ConfirmUserEmail(user);
+
+            return Ok();
+        }
+
         [HttpPost("Logout")]
         [Authorize]
-        public async Task Logout()
+        public async Task<IActionResult> Logout()
         {
             string email = _authService.ExtractEmailClaim(HttpContext);
 
@@ -96,7 +117,7 @@ namespace backend.Controllers
 
             _authService.DeleteAuthenticationCookie(HttpContext);
 
-            Ok();
+            return Ok();
         }
 
     }

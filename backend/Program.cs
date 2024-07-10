@@ -51,6 +51,7 @@ string jwtAudience = builder.Configuration["Jwt:Audience"]!;
 builder.Services.AddScoped<IAuthService, AuthManager>();
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<IRoleService, RoleManager>();
+builder.Services.AddSingleton<IEmailerService, EmailerManager>();
 
 builder.Services.AddDbContext<BankDbContext>(options => options.UseNpgsql(connectionString));
 
