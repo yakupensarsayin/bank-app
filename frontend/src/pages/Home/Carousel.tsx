@@ -12,10 +12,10 @@ function Carousel() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSlideIndex((prevIndex) => (prevIndex + 1) % slides.length);
+      nextSlide();
     }, 3000);
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, []);
 
   const nextSlide = () => {
     setSlideIndex((prevIndex) => (prevIndex + 1) % slides.length);
@@ -33,11 +33,13 @@ function Carousel() {
     <div className="carousel">
       <button className="carousel-button prev" onClick={prevSlide}>❮</button>
       <button className="carousel-button next" onClick={nextSlide}>❯</button>
-      {slides.map((slide, index) => (
-        <div key={index} className={`carousel-slide ${index === slideIndex ? 'active' : ''}`}>
-          <img src={slide} alt={`Slide ${index + 1}`} />
-        </div>
-      ))}
+      <div className="carousel-slides" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+        {slides.map((slide, index) => (
+          <div key={index} className="carousel-slide">
+            <img src={slide} alt={`Slide ${index + 1}`} />
+          </div>
+        ))}
+      </div>
       <div className="carousel-indicators">
         {slides.map((_, index) => (
           <span

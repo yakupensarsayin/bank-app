@@ -21,7 +21,6 @@
 }
 
 .nav-logo {
-  /*color: #f5b924;*/
   color: hsl(40, 80%, 60%);
   align-items: center;
   margin-left: 20px;
@@ -29,7 +28,6 @@
   text-decoration: none;
   font-size: 2rem;
   flex-grow: 1;
-
   display: flex;
   align-items: center;
   justify-items: center;
@@ -56,9 +54,6 @@
   height: 100%;
   border-bottom: 3px solid transparent;
 }
-/* .fa-code {
-  margin-left: 1rem;
-} */
 
 .nav-item {
   line-height: 40px;
@@ -76,7 +71,6 @@
 
 .nav-item:hover:after {
   width: 100%;
-  /*background: hsl(49, 100%, 63%);*/
   background: hsl(40, 80%, 60%);
 }
 
@@ -101,7 +95,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    border-top: 1pxsolid #fff;
     position: absolute;
     top: 80px;
     left: -110%;
@@ -122,7 +115,7 @@
   }
   .nav-links {
     padding: 1.5rem;
-    width: 100%;
+    width: 85%;
     display: table;
   }
 

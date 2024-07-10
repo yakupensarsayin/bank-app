@@ -2,13 +2,12 @@
     font-weight: bold;
     font-size: 2.5em;
     align-self: center;
-    margin-right: 5%;
   }
   
   .scroll-text-highlight {
     background-color: hsl(185, 50%, 25%);
-    padding: 0 5px;
     color: hsl(40, 80%, 60%);
+    text-align: center;
   }
   
   .container {
@@ -17,22 +16,26 @@
     justify-content: center;
     flex-wrap: wrap; /* Eğer yer varsa yan yana düzenle */
     margin-top: 10%;
-    margin-bottom: 10%;
+    margin-bottom:10%;
+    margin-left: 25%;
+    margin-right: 25%;
+    background-color: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    gap: 15%;
   }
   
   .scroll-carousel {
     overflow: visible;
     position: relative;
-    margin-left: 5%;
   }
   
   .scroll-carousel-slide {
     display: none;
     box-sizing: border-box;
-    border: 2px solid black;
-    border-radius: 20px;
     padding: 30px;
     background-color: hsl(185, 50%, 25%);
+    margin-top: 5%;
+    margin-bottom: 5%;
   }
   
   .scroll-carousel-slide.active {
@@ -51,17 +54,16 @@
       flex-direction: column; /* Küçük ekranlarda dikey düzene geç */
       text-align: center; /* İçeriği ortala */
       align-items: center; /* İçeriği dikeyde de ortala */
+      column-gap: 20px;
     }
   
     .scroll-text {
-      margin-left: 2%; /* Küçük ekranlarda sola sıfırla */
-      margin-bottom: 20px; /* Scroll-carousel ile arasına boşluk bırak */
+      margin-top: 10%;
+      margin-bottom: 10%;
     }
   
     .scroll-carousel {
-      margin-left: 11%;
-      margin-right: 10%;
-      margin-top: 20px; /* Scroll-text'in altına inmesi için boşluk bırak */
+      margin-top: 10%;
+      margin-bottom: 10%;
     }
   }
-  

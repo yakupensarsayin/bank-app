@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import "../css/navbar.css";
+import "../../css/navbar.css";
 import { CodeIcon, HamburgerMenuClose, HamburgerMenuOpen } from "./Icons";
 
 function Navbar() {
@@ -11,9 +11,8 @@ function Navbar() {
     <>
       <nav className="navbar">
         <div className="nav-container">
-          <NavLink to="/home" className="nav-logo">
+          <NavLink to="/" className="nav-logo">
             <span>IrSay Bank</span>
-            {/* <i className="fas fa-code"></i> */}
             <span className="icon">
               <CodeIcon />
             </span>
@@ -22,7 +21,7 @@ function Navbar() {
           <ul className={click ? "nav-menu active" : "nav-menu"}>
             <li className="nav-item">
               <NavLink
-                to="/home"
+                to="/"
                 className={location.pathname === "/" ? "nav-links active" : "nav-links"}
                 onClick={handleClick}
               >
@@ -40,7 +39,7 @@ function Navbar() {
             </li>
             <li className="nav-item">
               <NavLink
-                to="/"
+                to="/login"
                 className={location.pathname === "/" ? "nav-links active" : "nav-links"}
                 onClick={handleClick}
               >
@@ -58,7 +57,6 @@ function Navbar() {
             </li>
           </ul>
           <div className="nav-icon" onClick={handleClick}>
-            {/* <i className={click ? "fas fa-times" : "fas fa-bars"}></i> */}
 
             {click ? (
               <span className="icon">
