@@ -21,7 +21,15 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "baseUrl": "./src",
+    "paths": {
+      "@img/*": ["assets/img/*"],
+      "@css/*": ["assets/css/*"],
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["./src"]
 }

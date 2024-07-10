@@ -1,6 +1,6 @@
-import Carousel from './Carousel';
-import ScrollText from './ScrollText';
-import '../../css/home.css';
+import Carousel from '@components/ui/Carousel';
+import ScrollText from '@components/ui/ScrollText';
+import '@css/home.css';
 
 function Home() {
   return (

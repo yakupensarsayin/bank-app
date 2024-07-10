@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import cumberland from '../../assets/cumberland.jpg';
-import lights from '../../assets/lights.jpg';
-import slider from '../../assets/slider.png';
-import volume from '../../assets/volume.jpg';
-import wool from '../../assets/wool.jpg';
-import '../../css/carousel.css';
+import cumberland from '@img/cumberland.jpg';
+import lights from '@img/lights.jpg';
+import slider from '@img/slider.png';
+import volume from '@img/volume.jpg';
+import wool from '@img/wool.jpg';
+import '@css/carousel.css';
 
 function Carousel() {
   const [slideIndex, setSlideIndex] = useState(0);

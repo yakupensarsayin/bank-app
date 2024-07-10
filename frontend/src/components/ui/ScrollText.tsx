@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import ab from '../../assets/aligulbag.jpeg';
-import mfa from '../../assets/mfa.jpeg';
-import '../../css/scrolltext.css';
+import ab from '@img/aligulbag.jpeg';
+import mfa from '@img/mfa.jpeg';
+import '@css/scrolltext.css';
 
 function ScrollText() {
   const [word, setWord] = useState(0);
