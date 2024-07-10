@@ -5,7 +5,7 @@ namespace backend.Mapper
 {
     public class UserMapper
     {
-        public User UserRegisterDtoToUserWithPasswordHash(UserRegisterDto dto, String passwordHash)
+        public User MapUserFromUserRegisterDto(UserRegisterDto dto, String passwordHash)
         {
             User user = new User()
             {

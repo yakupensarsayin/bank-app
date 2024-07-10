@@ -32,5 +32,5 @@ public partial class User
 
     public DateTime TokenExpiry {  get; set; }
 
-    public ICollection<Role> Roles { get; set; }
+    public List<Role> Roles { get; set; }
 }

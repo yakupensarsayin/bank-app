@@ -1,4 +1,6 @@
 using backend.Models;
+using backend.Services.Abstract;
+using backend.Services.Concrete;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +46,11 @@ string connectionString = builder.Configuration["ConnectionStrings:bank_db"]!;
 string jwtKey = builder.Configuration["Jwt:Key"]!;
 string jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
 string jwtAudience = builder.Configuration["Jwt:Audience"]!;
+
+// because of DbContext, they are Scoped
+builder.Services.AddScoped<IAuthService, AuthManager>();
+builder.Services.AddScoped<IUserService, UserManager>();
+builder.Services.AddScoped<IRoleService, RoleManager>();
 
 builder.Services.AddDbContext<BankDbContext>(options => options.UseNpgsql(connectionString));
 
