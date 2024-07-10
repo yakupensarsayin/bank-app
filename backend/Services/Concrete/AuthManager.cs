@@ -2,6 +2,7 @@
 using backend.Models;
 using backend.Services.Abstract;
 using Humanizer.DateTimeHumanizeStrategy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,6 +22,8 @@ namespace backend.Services.Concrete
         // can be changed in future, right now harcoded.
         private readonly int _jwtExpirationMinutes = 15;
         private readonly int _jwtExpirationSeconds = 15 * 60;
+
+        private readonly int _refreshTokenExpirationMinutes = 30;
 
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
         public AuthManager(IConfiguration configuration)
@@ -91,10 +94,8 @@ namespace backend.Services.Concrete
 
             var response = new TokenResponse
             {
-                TokenType = "Bearer",
                 AccessToken = _jwtSecurityTokenHandler.WriteToken(token),
                 RefreshToken = refreshToken,
-                ExpiresIn = expiresIn
             };
 
             return response;
@@ -105,5 +106,68 @@ namespace backend.Services.Concrete
             return result.ClaimsIdentity.FindFirst(ClaimTypes.Email)!.Value;
         }
 
+        public void SetTokensInsideCookie(TokenResponse response, HttpContext context)
+        {
+            var tokenOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                Expires = DateTime.UtcNow.AddMinutes(_jwtExpirationMinutes),
+                SameSite = SameSiteMode.Strict
+            };
+
+            var refreshTokenOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                Expires = DateTime.UtcNow.AddMinutes(_refreshTokenExpirationMinutes),
+                SameSite = SameSiteMode.Strict
+            };
+
+            context.Response.Cookies.Append("accessToken", response.AccessToken, tokenOptions);
+            context.Response.Cookies.Append("refreshToken", response.RefreshToken, refreshTokenOptions);
+        }
+
+        public int GetRefreshTokenExpirationMinutes()
+        {
+            return _refreshTokenExpirationMinutes;
+        }
+
+        public void DeleteAuthenticationCookie(HttpContext context)
+        {
+            var deletedCookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                Expires = DateTime.UtcNow.AddHours(-1),
+                SameSite = SameSiteMode.Strict
+            };
+
+            context.Response.Cookies.Append("accessToken", "", deletedCookieOptions);
+            context.Response.Cookies.Append("refreshToken", "", deletedCookieOptions);
+        }
+
+        public bool ExtractTokensFromCookie(HttpContext context, out RefreshModel model)
+        {
+            context.Request.Cookies.TryGetValue("accessToken", out var at);
+            context.Request.Cookies.TryGetValue("refreshToken", out var rt);
+
+            if (string.IsNullOrEmpty(at) && string.IsNullOrEmpty(rt))
+            {
+                model = new RefreshModel() { AccessToken = "", RefreshToken = "" };
+                return false;
+            }
+
+            model = new RefreshModel() { AccessToken = at!, RefreshToken = rt! };
+            return true;
+        }
+
+        public string ExtractEmailClaim(HttpContext context)
+        {
+            return context.User.Claims.Single(c => c.Type == ClaimTypes.Email).Value;
+        }
     }
 }

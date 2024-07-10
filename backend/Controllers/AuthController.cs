@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using backend.Models;
 using backend.DTO;
-using backend.Mapper;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using backend.Authentication;
-using System.Security.Cryptography;
-using NuGet.Common;
 using backend.Services.Abstract;
+using Microsoft.AspNetCore.Authorization;
+using backend.Services.Concrete;
 
 namespace backend.Controllers
 {
@@ -23,13 +13,13 @@ namespace backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authManager;
+        private readonly IAuthService _authService;
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
 
         public AuthController(IAuthService authService, IUserService userService, IRoleService roleService)
         {
-            _authManager = authService;
+            _authService = authService;
             _userService = userService;
             _roleService = roleService;
         }
@@ -40,7 +30,7 @@ namespace backend.Controllers
             if (await _userService.DoesUserExist(dto.Email))
                 return BadRequest();
 
-            string passwordHash = _authManager.HashPassword(dto.Password);
+            string passwordHash = _authService.HashPassword(dto.Password);
 
             Role customerRole = await _roleService.GetRole(r => r.Name == "Customer");
 
@@ -54,36 +44,59 @@ namespace backend.Controllers
         {
             User? user = await _userService.GetUserWithRoles(dto.Email);
 
-            if (user == null || !_authManager.VerifyPasswordHash(dto.Password, user.Password))
+            if (user == null || !_authService.VerifyPasswordHash(dto.Password, user.Password))
                 return BadRequest();
 
-            var response = _authManager.CreateTokenResponse(user);
+            var response = _authService.CreateTokenResponse(user);
+            int expiration = _authService.GetRefreshTokenExpirationMinutes();
 
-            await _userService.SaveRefreshTokenToDatabase(user, response.RefreshToken, response.ExpiresIn);
+            await _userService.SaveRefreshTokenToDatabase(user, response.RefreshToken, expiration);
+            _authService.SetTokensInsideCookie(response, HttpContext);
 
-            return Ok(response);
+            return Ok();
         }
 
         [HttpPost("Refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshModel model)
+        public async Task<IActionResult> Refresh()
         {
-            TokenValidationResult result = await _authManager.ValidateExpiredToken(model.AccessToken);
+            bool success = _authService.ExtractTokensFromCookie(HttpContext, out RefreshModel model);
+
+            if(!success)
+                return Unauthorized();
+
+            TokenValidationResult result = await _authService.ValidateExpiredToken(model.AccessToken);
 
             if (!result.IsValid)
                 return Unauthorized();
 
-            string email = _authManager.ExtractEmailClaim(result);
+            string email = _authService.ExtractEmailClaim(result);
 
             User? user = await _userService.GetUserWithRoles(email);
 
             if (user == null || user.RefreshToken != model.RefreshToken || user.TokenExpiry < DateTime.UtcNow)
                 return Unauthorized();
 
-            var response = _authManager.CreateTokenResponse(user);
+            var response = _authService.CreateTokenResponse(user);
+            int expiration = _authService.GetRefreshTokenExpirationMinutes();
 
-            await _userService.SaveRefreshTokenToDatabase(user, response.RefreshToken, response.ExpiresIn);
+            await _userService.SaveRefreshTokenToDatabase(user, response.RefreshToken, expiration);
 
-            return Ok(response);
+            _authService.SetTokensInsideCookie(response, HttpContext);
+
+            return Ok();
+        }
+
+        [HttpPost("Logout")]
+        [Authorize]
+        public async Task Logout()
+        {
+            string email = _authService.ExtractEmailClaim(HttpContext);
+
+            await _userService.DeleteRefreshTokenFromDatabase(email);
+
+            _authService.DeleteAuthenticationCookie(HttpContext);
+
+            Ok();
         }
 
     }

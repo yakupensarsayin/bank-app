@@ -20,11 +20,7 @@ namespace backend.Services.Concrete
         }
         public async Task<bool> DoesUserExist(string email)
         {
-            User? user = await _context.Users
-                .Where(u => u.Email == email)
-                .FirstOrDefaultAsync();
-
-            return user != null;
+            return (await GetUser(email) != null);
         }
 
         public async Task<User> GetUserWithRoles(string email)
@@ -40,10 +36,10 @@ namespace backend.Services.Concrete
 #pragma warning restore CS8603
         }
 
-        public async Task SaveRefreshTokenToDatabase(User user, string refreshToken, int expiresInSeconds)
+        public async Task SaveRefreshTokenToDatabase(User user, string refreshToken, int expiresInMinutes)
         {
             user.RefreshToken = refreshToken;
-            user.TokenExpiry = DateTime.UtcNow.AddSeconds(expiresInSeconds);
+            user.TokenExpiry = DateTime.UtcNow.AddMinutes(expiresInMinutes);
 
             _context.Update(user);
             await _context.SaveChangesAsync();
@@ -53,11 +49,33 @@ namespace backend.Services.Concrete
         {
             User user = userMapper.MapUserFromUserRegisterDto(dto, passwordHash);
 
-            user.Roles = new List<Role>();
-            user.Roles.Add(customerRole);
+            user.Roles = new List<Role>(){customerRole};
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRefreshTokenFromDatabase(string email)
+        {
+            User user = await GetUser(email);
+
+            user.RefreshToken = null;
+            user.TokenExpiry = DateTime.UtcNow.AddHours(-1);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUser(string email)
+        {
+            User? user = await _context.Users
+            .Where(u => u.Email == email)
+            .FirstOrDefaultAsync();
+
+            // We are making checks on the returned result
+#pragma warning disable CS8603
+            return user;
+#pragma warning restore CS8603
         }
     }
 }
