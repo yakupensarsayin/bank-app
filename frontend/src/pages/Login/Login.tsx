@@ -1,8 +1,6 @@
 import {SubmitHandler, useForm} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
-import '../index.css'
-
-
+import '../../css/index.css';
 
 type LoginFormValues = {
   email: string;
@@ -13,7 +11,8 @@ function Login() {
   const {register, handleSubmit, formState} = useForm<LoginFormValues>();
   const {errors} = formState;
 
-  const navigate = useNavigate();
+  const navigateRegister = useNavigate();
+  const navigateHome = useNavigate();
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (formValues) => {
 
@@ -31,6 +30,7 @@ function Login() {
 
       if (response.ok) {
         console.log('Login successful:', data);
+        navigateHome('/home');
       }
       else {
         console.error('Login failed:', data);
@@ -42,7 +42,7 @@ function Login() {
   }
 
   const handleRegisterClick = () => {
-    navigate('/register.html');
+    navigateRegister('/register.html');
   };
 
   return (

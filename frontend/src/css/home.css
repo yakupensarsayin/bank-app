@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: hsl(210, 45%, 90%);
+}
+
+.pages {
+  color: #316685;
+  text-align: center;
+  font-size: 3.5rem;
+  margin-top: 0%;
+}
+
+.presentation{
+  text-align: center;
+  font-size: 1.5em;
+  margin: 10%;
+  background-color: hsl(210, 45%, 90%);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Gölge efekti */
+  padding: 20px; /* İçerik kenar boşluğu */
+  border-radius: 20px;
+  border: 3px solid hsl(185, 50%, 25%);
+}
