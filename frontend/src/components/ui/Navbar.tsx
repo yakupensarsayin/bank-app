@@ -30,11 +30,11 @@ function Navbar() {
             </li>
             <li className="nav-item">
               <NavLink
-                to="/accounts"
+                to="/account"
                 className={location.pathname === "/" ? "nav-links active" : "nav-links"}
                 onClick={handleClick}
               >
-                Accounts
+                Account
               </NavLink>
             </li>
             <li className="nav-item">

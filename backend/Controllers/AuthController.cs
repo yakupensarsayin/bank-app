@@ -31,7 +31,7 @@ namespace backend.Controllers
         public async Task<IActionResult> Register([FromBody] UserRegisterDto dto)
         {
             if (await _userService.DoesUserExist(dto.Email))
-                return BadRequest();
+                return BadRequest(new AuthenticationResponse { Status=400, Message="Email is in use!"});
 
             string passwordHash = _authService.HashPassword(dto.Password);
 
@@ -41,7 +41,7 @@ namespace backend.Controllers
             await _userService.RegisterUserToDatabase(dto, passwordHash, customerRole, emailToken);
             await _emailerService.SendEmailVerificationToken(dto.Email, emailToken);
 
-            return Ok();
+            return Ok(new AuthenticationResponse { Status = 200, Message = "Successfully registered!!" });
         }
 
         [HttpPost("Login")]
@@ -50,10 +50,10 @@ namespace backend.Controllers
             User? user = await _userService.GetUserWithRoles(dto.Email);
 
             if (user == null || !_authService.VerifyPasswordHash(dto.Password, user.Password))
-                return BadRequest();
+                return BadRequest(new AuthenticationResponse { Status= 400, Message = "Email or password is incorrect!"});
 
             if(!user.IsEmailConfirmed)
-                return BadRequest("Email is not confirmed!");
+                return BadRequest(new AuthenticationResponse { Status = 400, Message = "Email is not verified!" });
 
             var response = _authService.CreateTokenResponse(user);
             int expiration = _authService.GetRefreshTokenExpirationMinutes();
@@ -61,7 +61,7 @@ namespace backend.Controllers
             await _userService.SaveRefreshTokenToDatabase(user, response.RefreshToken, expiration);
             _authService.SetTokensInsideCookie(response, HttpContext);
 
-            return Ok();
+            return Ok(new AuthenticationResponse { Status = 200, Message = "Succesfully logged in!"});
         }
 
         [HttpPost("Refresh")]

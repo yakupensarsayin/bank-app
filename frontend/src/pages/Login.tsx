@@ -23,6 +23,7 @@ function Login() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formValues)
       });
 
@@ -30,7 +31,7 @@ function Login() {
 
       if (response.ok) {
         console.log('Login successful:', data);
-        navigateHome('/home');
+        navigateHome('/account');
       }
       else {
         console.error('Login failed:', data);

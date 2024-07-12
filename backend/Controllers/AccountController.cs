@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using backend.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -11,7 +12,7 @@ namespace backend.Controllers
         [Authorize(Roles = "Customer")]
         public IActionResult GetCustomerData()
         {
-            return Ok("You got the customer data!");
+            return Ok(new AuthenticationResponse { Status = 200, Message = "You got the customer data!"});
         }
 
         [HttpGet("GetAdminData")]

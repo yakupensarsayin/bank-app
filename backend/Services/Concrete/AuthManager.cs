@@ -113,7 +113,7 @@ namespace backend.Services.Concrete
                 HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
-                Expires = DateTime.UtcNow.AddMinutes(_jwtExpirationMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(_refreshTokenExpirationMinutes),
                 SameSite = SameSiteMode.Strict
             };
 
