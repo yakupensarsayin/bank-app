@@ -36,5 +36,5 @@ public partial class User
     public string? EmailVerificationToken { get; set; }
     public bool IsEmailConfirmed { get; set; } = false;
 
-    public List<Role> Roles { get; set; }
+    public List<Role> Roles { get; set; } = new List<Role>();
 }

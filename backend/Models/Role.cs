@@ -13,6 +13,6 @@ namespace backend.Models
         [StringLength(30)]
         public string Name { get; set; } = null!;
 
-        public List<User> Users { get; set; }
+        public List<User> Users { get; set; } = new List<User>();
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.Models;
@@ -11,9 +12,11 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(BankDbContext))]
-    partial class BankDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240714161956_AddAccount")]
+    partial class AddAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,30 +69,6 @@ namespace backend.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("backend.Models.AccountStatement", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AccountId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("LastBalance")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StatementDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("AccountsStatements");
                 });
 
             modelBuilder.Entity("backend.Models.Customer", b =>
@@ -206,17 +185,6 @@ namespace backend.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("backend.Models.AccountStatement", b =>
-                {
-                    b.HasOne("backend.Models.Account", "Account")
-                        .WithMany("AccountStatements")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("backend.Models.Customer", b =>
                 {
                     b.HasOne("backend.Models.User", "User")
@@ -226,11 +194,6 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Models.Account", b =>
-                {
-                    b.Navigation("AccountStatements");
                 });
 
             modelBuilder.Entity("backend.Models.Customer", b =>

@@ -18,4 +18,10 @@ public partial class BankDbContext : DbContext
     public DbSet<User> Users { get; set; }
 
     public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Customer> Customers { get; set; }
+
+    public DbSet<Account> Accounts { get; set; }
+
+    public DbSet<AccountStatement> AccountsStatements { get; set; }
 }
